@@ -20,4 +20,10 @@ public class Amenity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
+    public static Amenity of(String name) {
+        var amenity = new Amenity();
+        amenity.name = name;
+        return amenity;
+    }
 }

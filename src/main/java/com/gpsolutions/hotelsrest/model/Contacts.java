@@ -23,4 +23,11 @@ public class Contacts {
     private String phone;
     @Email
     private String email;
+
+    public static Contacts of(String phone, String email) {
+        var contacts = new Contacts();
+        contacts.phone = phone;
+        contacts.email = email;
+        return contacts;
+    }
 }

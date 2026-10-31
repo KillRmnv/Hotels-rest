@@ -17,4 +17,10 @@ public class Brand {
     private Long id;
 
     private String name;
+
+    public static Brand of(String name) {
+        var brand = new Brand();
+        brand.name = name;
+        return brand;
+    }
 }

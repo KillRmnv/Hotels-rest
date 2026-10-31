@@ -17,4 +17,10 @@ public class Country {
     private Long id;
 
     private String name;
+
+    public static Country of(String name) {
+        var country = new Country();
+        country.name = name;
+        return country;
+    }
 }

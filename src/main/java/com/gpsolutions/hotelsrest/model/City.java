@@ -19,4 +19,11 @@ public class City {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
+
+    public static City of(String name, Country country) {
+        var city = new City();
+        city.name = name;
+        city.country = country;
+        return city;
+    }
 }

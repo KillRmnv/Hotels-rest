@@ -20,4 +20,12 @@ public class Address {
     @JoinColumn(name = "street_id", nullable = false)
     private Street street;
     private String postCode;
+
+    public static Address of(Integer houseNumber, Street street, String postCode) {
+        var address = new Address();
+        address.houseNumber = houseNumber;
+        address.street = street;
+        address.postCode = postCode;
+        return address;
+    }
 }

@@ -37,4 +37,18 @@ public class Hotel {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "contacts_id", referencedColumnName = "id")
     private Contacts contacts;
+
+    public static Hotel of(
+            String name, String description, Brand brand, Address address,
+            Contacts contacts, ArrivalTime arrivalTime) {
+        var hotel = new Hotel();
+        hotel.name = name;
+        hotel.description = description;
+        hotel.brand = brand;
+        hotel.address = address;
+        hotel.contacts = contacts;
+        hotel.arrivalTime = arrivalTime;
+        hotel.amenities = Set.of();
+        return hotel;
+    }
 }

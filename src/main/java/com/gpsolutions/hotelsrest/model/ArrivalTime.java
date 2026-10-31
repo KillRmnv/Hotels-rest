@@ -13,4 +13,11 @@ import java.time.LocalTime;
 public class ArrivalTime {
     private LocalTime checkIn;
     private LocalTime checkOut;
+
+    public static ArrivalTime of(LocalTime checkIn, LocalTime checkOut) {
+        var arrivalTime = new ArrivalTime();
+        arrivalTime.checkIn = checkIn;
+        arrivalTime.checkOut = checkOut;
+        return arrivalTime;
+    }
 }

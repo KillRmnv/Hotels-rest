@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -25,4 +26,11 @@ public class Street {
             inverseJoinColumns = @JoinColumn(name = "city_id")
     )
     private Set<City> cities;
+
+    public static Street of(String name) {
+        var street = new Street();
+        street.name = name;
+        street.cities = new HashSet<>();
+        return street;
+    }
 }
