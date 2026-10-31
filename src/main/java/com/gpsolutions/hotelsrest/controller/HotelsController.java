@@ -1,14 +1,19 @@
 package com.gpsolutions.hotelsrest.controller;
 
+import com.gpsolutions.hotelsrest.dto.HotelCreateRequest;
 import com.gpsolutions.hotelsrest.dto.HotelExtendedResponse;
 import com.gpsolutions.hotelsrest.dto.HotelResponse;
 import com.gpsolutions.hotelsrest.dto.HotelsSearchFilterRequest;
 import com.gpsolutions.hotelsrest.service.HotelsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,5 +46,10 @@ public class HotelsController {
     @GetMapping("/search")
     public ResponseEntity<List<HotelResponse>> searchHotelMirror(HotelsSearchFilterRequest request) {
         return ResponseEntity.ok(hotelService.searchHotels(request));
+    }
+
+    @PostMapping("/hotels")
+    public ResponseEntity<HotelResponse> create(@Valid @RequestBody HotelCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelService.create(request));
     }
 }
