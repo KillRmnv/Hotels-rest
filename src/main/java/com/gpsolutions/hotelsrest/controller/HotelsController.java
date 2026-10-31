@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RestController("/hotels")
+@RestController("/property-view/hotels")
 public class HotelsController {
     private HotelsService hotelService;
 
     @GetMapping
     public ResponseEntity<List<HotelResponse>> getAll() {
-
         return new ResponseEntity<>(hotelService.getAllHotels(),HttpStatusCode.valueOf(200));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<HotelExtendedResponse> getHotel (@PathVariable Long id){
-
+        return new ResponseEntity<>(hotelService.getHotel(id),HttpStatusCode.valueOf(200));
     }
 
 }
