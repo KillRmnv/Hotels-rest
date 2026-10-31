@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:hotels}
+    username: ${MYSQL_USER:hotels}
+    password: ${MYSQL_PASSWORD:hotels}
+    driver-class-name: com.mysql.cj.jdbc.Driver

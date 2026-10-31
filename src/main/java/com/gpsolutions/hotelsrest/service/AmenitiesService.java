@@ -31,7 +31,6 @@ public class AmenitiesService {
         var hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> NotFoundException.hotel("There are no hotel id:%d".formatted(hotelId)));
 
-        // dedup по имени без учёта регистра — «Free WiFi» и «free wifi» в одном запросе
         Set<Amenity> resolved = new LinkedHashSet<>();
         for (String raw : amenities) {
             if (raw == null || raw.isBlank()) {
@@ -40,7 +39,7 @@ public class AmenitiesService {
             resolved.add(findOrCreate(raw.trim()));
         }
 
-        hotel.getAmenities().addAll(resolved); // dirty checking сохранит связи, save не обязателен
+        hotel.getAmenities().addAll(resolved);
     }
 
     private Amenity findOrCreate(String name) {
