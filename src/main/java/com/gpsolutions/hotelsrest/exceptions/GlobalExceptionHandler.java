@@ -20,6 +20,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import jakarta.validation.ConstraintViolationException;
+
 
 @RestControllerAdvice
 @Slf4j
@@ -80,6 +82,20 @@ public final class GlobalExceptionHandler extends ResponseEntityExceptionHandler
         }).toList();
 
         ProblemDetail body = problemDetail(HttpStatus.BAD_REQUEST, "validation-failed", "The request body is not valid",
+                request);
+        body.setProperty("errors", violations);
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
+        List<FieldViolation> violations = ex.getConstraintViolations().stream()
+                .map((violation) -> new FieldViolation(
+                        violation.getPropertyPath().toString(), violation.getMessage()))
+                .toList();
+
+        ProblemDetail body = problemDetail(HttpStatus.BAD_REQUEST, "validation-failed", "The request parameter is not valid",
                 request);
         body.setProperty("errors", violations);
 

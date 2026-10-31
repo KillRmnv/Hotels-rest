@@ -44,7 +44,7 @@ public final class HotelSpecifications {
 
     public static Specification<Hotel> byCity(String city) {
         Specification<Hotel> spec = (root, query, cb) -> {
-            query.distinct(true); // m2m join может размножить строки отеля
+            query.distinct(true);
             return cb.like(cb.lower(root.join("address").join("street").join("cities").get("name")), asLike(city));
         };
         return spec;

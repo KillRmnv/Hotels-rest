@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "hotels")
@@ -14,6 +15,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Hotel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,7 +50,7 @@ public class Hotel {
         hotel.address = address;
         hotel.contacts = contacts;
         hotel.arrivalTime = arrivalTime;
-        hotel.amenities = Set.of();
+        hotel.amenities = new HashSet<>();
         return hotel;
     }
 }
