@@ -2,7 +2,6 @@ package com.gpsolutions.hotelsrest.dto;
 
 import lombok.Data;
 
-import java.time.LocalTime;
 import java.util.List;
 
 @Data
