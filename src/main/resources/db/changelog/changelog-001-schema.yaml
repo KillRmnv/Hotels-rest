@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-schema
+      author: kirillrmnv
+      changes:
+        - createTable:
+            tableName: countries
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_countries } }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false, unique: true, uniqueConstraintName: uq_countries_name } }
+        - createTable:
+            tableName: cities
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_cities } }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false, unique: true, uniqueConstraintName: uq_cities_name } }
+              - column: { name: country_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_city_country, references: countries(id) } }
+        - createTable:
+            tableName: brands
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_brands } }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false, unique: true, uniqueConstraintName: uq_brands_name } }
+        - createTable:
+            tableName: streets
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_streets } }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false, unique: true, uniqueConstraintName: uq_streets_name } }
+        - createTable:
+            tableName: streets_cities
+            columns:
+              - column: { name: street_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_sc_street, references: streets(id) } }
+              - column: { name: city_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_sc_city, references: cities(id) } }
+              - addPrimaryKey constraintName=pk_streets_cities, columnNames=street_id, city_id
+        - createTable:
+            tableName: addresses
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_addresses } }
+              - column: { name: house_number, type: int }
+              - column: { name: street_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_address_street, references: streets(id) } }
+              - column: { name: post_code, type: varchar(32) }
+        - createTable:
+            tableName: contacts
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_contacts } }
+              - column: { name: phone, type: varchar(64) }
+              - column: { name: email, type: varchar(255) }
+        - createTable:
+            tableName: amenities
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_amenities } }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false, unique: true, uniqueConstraintName: uq_amenities_name } }
+        - createTable:
+            tableName: hotels
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_hotels } }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: description, type: varchar(2000) }
+              - column: { name: check_in, type: time }
+              - column: { name: check_out, type: time }
+              - column: { name: brand_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_hotel_brand, references: brands(id) } }
+              - column: { name: address_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_hotel_address, references: addresses(id) } }
+              - column: { name: contacts_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_hotel_contacts, references: contacts(id) } }
+        - createTable:
+            tableName: hotel_amenities
+            columns:
+              - column: { name: hotel_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_ha_hotel, references: hotels(id) } }
+              - column: { name: amenity_id, type: bigint, constraints: { nullable: false, foreignKeyName: fk_ha_amenity, references: amenities(id) } }
+              - addPrimaryKey constraintName=pk_hotel_amenities, columnNames=hotel_id, amenity_id
