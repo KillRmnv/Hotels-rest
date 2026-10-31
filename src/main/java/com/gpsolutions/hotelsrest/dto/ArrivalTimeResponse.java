@@ -9,12 +9,12 @@ import java.time.LocalTime;
 @Data
 @Schema(description = "Arrival time response")
 public class ArrivalTimeResponse {
-    @Schema(description = "Post office code",
-            example = "220004")
+    @Schema(description = "Earliest check-in time",
+            example = "12:34")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime checkIn;
-    @Schema(description = "Post office code",
-            example = "220004")
+    @Schema(description = "Check-out deadline (optional)",
+            example = "11:09")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime checkOut;
 }
