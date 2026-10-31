@@ -1,12 +1,12 @@
 package com.gpsolutions.hotelsrest.dto;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-@RequiredArgsConstructor
+@Data
 public class HotelResponse {
-    Long id;
-    String name;
-    String description;
-    String address;
-    String phone;
+    private Long id;
+    private String name;
+    private String description;
+    private String address;
+    private String phone;
 }
