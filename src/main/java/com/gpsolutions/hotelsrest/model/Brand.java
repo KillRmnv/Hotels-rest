@@ -1,13 +1,17 @@
 package com.gpsolutions.hotelsrest.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Table(name="brands")
+@Table(name = "brands")
+@Getter
+@Setter
 public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String name;
+    private String name;
 }

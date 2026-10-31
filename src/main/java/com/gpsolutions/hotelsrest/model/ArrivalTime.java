@@ -3,10 +3,11 @@ package com.gpsolutions.hotelsrest.model;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Data
 @Embeddable
 public class ArrivalTime {
-    private LocalDate checkIn;
-    private LocalDate checkOut;
+    private LocalTime checkIn;
+    private LocalTime checkOut;
 }

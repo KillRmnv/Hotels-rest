@@ -1,9 +1,13 @@
 package com.gpsolutions.hotelsrest.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Table(name="city")
+@Table(name = "cities")
+@Getter
+@Setter
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

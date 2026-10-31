@@ -2,9 +2,11 @@ package com.gpsolutions.hotelsrest.service;
 
 import com.gpsolutions.hotelsrest.dto.HotelExtendedResponse;
 import com.gpsolutions.hotelsrest.dto.HotelResponse;
+import com.gpsolutions.hotelsrest.dto.HotelsSearchFilterRequest;
 import com.gpsolutions.hotelsrest.exceptions.NotFoundException;
 import com.gpsolutions.hotelsrest.mapper.HotelMapper;
 import com.gpsolutions.hotelsrest.repository.HotelsRepository;
+import com.gpsolutions.hotelsrest.specification.HotelSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +15,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class HotelsService {
-    private HotelsRepository hotelDao;
-    private HotelMapper hotelMapper;
+    private final HotelsRepository hotelDao;
+    private final HotelMapper hotelMapper;
+
+    public List<HotelResponse> searchHotels(HotelsSearchFilterRequest filter) {
+        return hotelDao.findAll(HotelSpecifications.withFilter(filter)).stream()
+                .map(hotelMapper::toHotelResponse)
+                .toList();
+    }
 
     public List<HotelResponse> getAllHotels() {
         return hotelDao.findAll().stream().map(hotelMapper::toHotelResponse).toList();
