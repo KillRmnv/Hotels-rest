@@ -26,4 +26,6 @@ public class HotelsService {
         });
         return hotelMapper.toHotelExtendedResponse(hotel);
     }
+
+
 }

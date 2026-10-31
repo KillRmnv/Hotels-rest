@@ -10,6 +10,11 @@ public class Hotel {
     private Long id;
     private String name;
     private String description;
+    @Embedded
+    private ArrivalTime arrivalTime;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
