@@ -3,6 +3,8 @@ package com.gpsolutions.hotelsrest.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -10,6 +12,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Hotel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

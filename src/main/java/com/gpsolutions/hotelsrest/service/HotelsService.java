@@ -8,11 +8,13 @@ import com.gpsolutions.hotelsrest.mapper.HotelMapper;
 import com.gpsolutions.hotelsrest.repository.HotelsRepository;
 import com.gpsolutions.hotelsrest.specification.HotelSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @RequiredArgsConstructor
+@Configuration(proxyBeanMethods = false)
 @Service
 public class HotelsService {
     private final HotelsRepository hotelDao;
@@ -34,6 +36,5 @@ public class HotelsService {
         });
         return hotelMapper.toHotelExtendedResponse(hotel);
     }
-
 
 }

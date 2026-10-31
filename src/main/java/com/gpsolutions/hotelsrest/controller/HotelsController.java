@@ -5,6 +5,7 @@ import com.gpsolutions.hotelsrest.dto.HotelResponse;
 import com.gpsolutions.hotelsrest.dto.HotelsSearchFilterRequest;
 import com.gpsolutions.hotelsrest.service.HotelsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Configuration(proxyBeanMethods = false)
 @RestController
 @RequestMapping("/property-view")
 public class HotelsController {

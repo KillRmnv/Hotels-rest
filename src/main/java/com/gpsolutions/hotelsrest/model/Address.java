@@ -3,11 +3,14 @@ package com.gpsolutions.hotelsrest.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "addresses")
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
