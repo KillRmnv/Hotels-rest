@@ -15,6 +15,7 @@ import com.gpsolutions.hotelsrest.repository.StreetRepository;
 import com.gpsolutions.hotelsrest.specification.HotelSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,12 @@ public class HotelsService {
 
     @Transactional(readOnly = true)
     public List<HotelResponse> searchHotels(HotelsSearchFilterRequest filter) {
-        return hotelDao.findAll(HotelSpecifications.withFilter(filter)).stream()
+        Specification<Hotel> spec = Specification.where(HotelSpecifications.hasName(filter.getName()))
+                .and(HotelSpecifications.hasBrand(filter.getBrand()))
+                .and(HotelSpecifications.hasCity(filter.getCity()))
+                .and(HotelSpecifications.hasCountry(filter.getCountry()))
+                .and(HotelSpecifications.hasAmenities(filter.getAmenities()));
+        return hotelDao.findAll(spec).stream()
                 .map(hotelMapper::toHotelResponse)
                 .toList();
     }
