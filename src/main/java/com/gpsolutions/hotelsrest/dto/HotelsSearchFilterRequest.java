@@ -1,9 +1,11 @@
 package com.gpsolutions.hotelsrest.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 @Schema(description = "Hotel search filter")
 public class HotelsSearchFilterRequest {
     @Schema(description = "Partial match on the hotel name (case-insensitive)",

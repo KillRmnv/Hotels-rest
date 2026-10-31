@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -50,6 +51,14 @@ public final class GlobalExceptionHandler extends ResponseEntityExceptionHandler
     ResponseEntity<ProblemDetail> handleUnexpected(IllegalStateException ex, WebRequest request) {
         log.error("Unexpected failure on {}", request.getDescription(false), ex);
         return problem(HttpStatus.INTERNAL_SERVER_ERROR, "internal-error", GENERIC_FAILURE_DETAIL, request);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ResponseEntity<ProblemDetail> handleDataIntegrity(DataIntegrityViolationException ex, WebRequest request) {
+        log.warn("Data constraint violation on {}: {}",
+                request.getDescription(false), ex.getMostSpecificCause().getMessage());
+        return problem(HttpStatus.CONFLICT, "constraint-violation",
+                "The request violates a data constraint (e.g. a duplicate value)", request);
     }
 
     @Override

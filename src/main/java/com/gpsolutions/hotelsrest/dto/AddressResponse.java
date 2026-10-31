@@ -1,9 +1,11 @@
 package com.gpsolutions.hotelsrest.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 @Schema(description = "Response about address")
 public class AddressResponse {
     @Schema(description = "Number of house on the street",

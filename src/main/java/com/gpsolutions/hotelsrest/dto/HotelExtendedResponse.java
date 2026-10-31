@@ -1,11 +1,13 @@
 package com.gpsolutions.hotelsrest.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
 @Schema(description = "Extended information about the hotel")
 public class HotelExtendedResponse {
     @Schema(description = "Hotel identifier",

@@ -13,12 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * POST /hotels/{id}/amenities: upsert значений и привязка к отелю —
- * один транзакционный сценарий.
- * Уникальность имени в БД (uq_amenities_name) — страховка от гонок;
- * нормальный путь — find-or-create по имени без учёта регистра.
- */
+
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 @Service
