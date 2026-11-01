@@ -6,14 +6,18 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Hotel create response")
 public class HotelCreateRequest {
     @Schema(description = "Name of the hotel",
@@ -44,6 +48,8 @@ public class HotelCreateRequest {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "Address of the hotel")
     public static class AddressCreateRequest {
         @Schema(description = "House number",
@@ -71,6 +77,8 @@ public class HotelCreateRequest {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "Contacts of the hotel")
     public static class ContactsCreateRequest {
         @Schema(description = "Reception phone number",
@@ -86,6 +94,8 @@ public class HotelCreateRequest {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "Arrival time of the hotel")
     public static class ArrivalTimeCreateRequest {
         @Schema(description = "Earliest check-in time",
