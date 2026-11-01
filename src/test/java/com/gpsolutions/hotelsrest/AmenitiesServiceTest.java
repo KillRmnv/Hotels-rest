@@ -11,24 +11,27 @@ import com.gpsolutions.hotelsrest.model.Street;
 import com.gpsolutions.hotelsrest.repository.AmenityRepository;
 import com.gpsolutions.hotelsrest.repository.HotelsRepository;
 import com.gpsolutions.hotelsrest.service.AmenitiesService;
+import com.gpsolutions.hotelsrest.service.ReferenceUpserter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,55 +41,63 @@ class AmenitiesServiceTest {
     private AmenityRepository amenityRepository;
     @Mock
     private HotelsRepository hotelRepository;
+    @Mock
+    private ReferenceUpserter upserter;
+    @Mock
+    private TransactionTemplate transactions;
     @InjectMocks
     private AmenitiesService amenitiesService;
 
+    @BeforeEach
+    void runTransactionCallbacksInline() {
+        lenient().when(transactions.execute(any())).thenAnswer(invocation ->
+                invocation.<TransactionCallback<Object>>getArgument(0).doInTransaction(null));
+    }
+
     @Test
-    void addAllNewAmenities_shouldAttachThemToHotel() {
+    void addNewAmenities_shouldAttachThemToHotel() {
         var hotel = setupHotel("brand", "street", "name", "descr");
+        var first = Amenity.of("First");
+        var second = Amenity.of("Second");
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
-        when(amenityRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.empty());
-        when(amenityRepository.save(any(Amenity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(upserter.amenityId("First")).thenReturn(1L);
+        when(upserter.amenityId("Second")).thenReturn(2L);
+        when(amenityRepository.findById(1L)).thenReturn(Optional.of(first));
+        when(amenityRepository.findById(2L)).thenReturn(Optional.of(second));
 
         amenitiesService.addAmenitiesTo(1L, List.of("First", "Second"));
 
         assertEquals(2, hotel.getAmenities().size());
-        assertTrue(hotel.getAmenities().stream()
-                .allMatch(a -> a.getName().equals("First") || a.getName().equals("Second")));
-        verify(amenityRepository, times(2)).save(any(Amenity.class));
+        assertTrue(hotel.getAmenities().contains(first));
+        assertTrue(hotel.getAmenities().contains(second));
         verify(hotelRepository, never()).save(any());
     }
 
     @Test
-    void addExistingAmenity_shouldReuseItInsteadOfCreating() {
+    void addExistingAmenity_shouldReuseIdFromUpserter() {
         var hotel = setupHotel("brand", "street", "name", "descr");
         var existing = Amenity.of("Free WiFi");
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
-        when(amenityRepository.findByNameIgnoreCase("Free WiFi")).thenReturn(Optional.of(existing));
+        when(upserter.amenityId("Free WiFi")).thenReturn(5L);
+        when(amenityRepository.findById(5L)).thenReturn(Optional.of(existing));
 
         amenitiesService.addAmenitiesTo(1L, List.of("Free WiFi"));
 
         assertEquals(1, hotel.getAmenities().size());
         assertTrue(hotel.getAmenities().contains(existing));
-        verify(amenityRepository, never()).save(any(Amenity.class));
     }
 
     @Test
     void addDuplicatedAmenitiesInOneRequest_shouldAttachOnce() {
         var hotel = setupHotel("brand", "street", "name", "descr");
-        var stored = new AtomicReference<Amenity>();
+        var first = Amenity.of("First");
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
-        when(amenityRepository.findByNameIgnoreCase(anyString()))
-                .thenAnswer(invocation -> Optional.ofNullable(stored.get()));
-        when(amenityRepository.save(any(Amenity.class))).thenAnswer(invocation -> {
-            stored.set(invocation.getArgument(0));
-            return stored.get();
-        });
+        when(upserter.amenityId(anyString())).thenReturn(1L);
+        when(amenityRepository.findById(1L)).thenReturn(Optional.of(first));
 
         amenitiesService.addAmenitiesTo(1L, List.of("First", "First"));
 
         assertEquals(1, hotel.getAmenities().size());
-        verify(amenityRepository, times(1)).save(any(Amenity.class));
     }
 
     @Test
@@ -96,7 +107,7 @@ class AmenitiesServiceTest {
         assertThrows(NotFoundException.class,
                 () -> amenitiesService.addAmenitiesTo(99L, List.of("First")));
 
-        verify(amenityRepository, never()).save(any(Amenity.class));
+        verify(upserter, never()).amenityId(anyString());
     }
 
     private Hotel setupHotel(String brandName, String streetName, String name, String description) {
