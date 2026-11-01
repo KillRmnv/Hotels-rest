@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.List;
 @Configuration(proxyBeanMethods = false)
 @RestController
 @RequestMapping("/property-view")
+@Slf4j
 public class HotelsController {
     private final HotelsService hotelService;
     @Operation(
@@ -36,6 +38,7 @@ public class HotelsController {
     @ApiResponse(responseCode = "200", description = "List of hotels")
     @GetMapping("/hotels")
     public ResponseEntity<List<HotelResponse>> getAll() {
+        log.info("GET /property-view/hotels");
         return ResponseEntity.ok(hotelService.getAllHotels());
     }
     @Operation(
@@ -47,6 +50,7 @@ public class HotelsController {
 
     @GetMapping("/hotels/{id}")
     public ResponseEntity<HotelExtendedResponse> getHotel(@PathVariable Long id) {
+        log.info("GET /property-view/hotels/{}", id);
         return ResponseEntity.ok(hotelService.getHotel(id));
     }
 
@@ -60,6 +64,8 @@ public class HotelsController {
     @ApiResponse(responseCode = "404", description = "There are no hotel with given id")
     @GetMapping("/hotels/search")
     public ResponseEntity<List<HotelResponse>> searchHotel(HotelsSearchFilterRequest request) {
+        log.info("GET /property-view/hotels/search name={} brand={} city={} country={} amenities={}",
+                request.getName(), request.getBrand(), request.getCity(), request.getCountry(), request.getAmenities());
         return ResponseEntity.ok(hotelService.searchHotels(request));
     }
     @Operation(
@@ -70,6 +76,8 @@ public class HotelsController {
     @ApiResponse(responseCode = "404", description = "There are no hotel with given id")
     @GetMapping("/search")
     public ResponseEntity<List<HotelResponse>> searchHotelMirror(HotelsSearchFilterRequest request) {
+        log.info("GET /property-view/search name={} brand={} city={} country={} amenities={}",
+                request.getName(), request.getBrand(), request.getCity(), request.getCountry(), request.getAmenities());
         return ResponseEntity.ok(hotelService.searchHotels(request));
     }
     @Operation(
@@ -79,6 +87,7 @@ public class HotelsController {
     @ApiResponse(responseCode = "201", description = "Created entity")
     @PostMapping("/hotels")
     public ResponseEntity<HotelResponse> create(@Valid @RequestBody HotelCreateRequest request) {
+        log.info("POST /property-view/hotels name={} brand={}", request.getName(), request.getBrand());
         return ResponseEntity.status(HttpStatus.CREATED).body(hotelService.create(request));
     }
 }

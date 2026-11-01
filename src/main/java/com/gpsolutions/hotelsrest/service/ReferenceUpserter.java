@@ -11,6 +11,7 @@ import com.gpsolutions.hotelsrest.repository.CityRepository;
 import com.gpsolutions.hotelsrest.repository.CountryRepository;
 import com.gpsolutions.hotelsrest.repository.StreetRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 @Service
+@Slf4j
 public class ReferenceUpserter {
     private final BrandRepository brandRepository;
     private final CountryRepository countryRepository;
@@ -71,6 +73,7 @@ public class ReferenceUpserter {
         try {
             return inNewTransaction(work);
         } catch (DataIntegrityViolationException concurrentInsert) {
+            log.debug("Reference upsert hit a concurrent insert, retrying find in a new transaction");
             return inNewTransaction(work);
         }
     }

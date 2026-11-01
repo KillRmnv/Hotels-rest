@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @RestController
+@Slf4j
 @Tag(name = "Amenities API",
         description = "API for management of amenity entities")
 @RequestMapping("/property-view")
@@ -38,6 +40,7 @@ public class AmenitiesController {
     public ResponseEntity<Void> addAmenities(
             @PathVariable Long id,
             @RequestBody @NotEmpty List<String> amenities) {
+        log.info("POST /property-view/hotels/{}/amenities count={}", id, amenities.size());
         amenitiesService.addAmenitiesTo(id, amenities);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
