@@ -2,12 +2,13 @@ package com.gpsolutions.hotelsrest.service;
 
 import com.gpsolutions.hotelsrest.exceptions.NotFoundException;
 import com.gpsolutions.hotelsrest.model.Amenity;
+import com.gpsolutions.hotelsrest.model.Hotel;
 import com.gpsolutions.hotelsrest.repository.AmenityRepository;
 import com.gpsolutions.hotelsrest.repository.HotelsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,25 +21,31 @@ import java.util.Set;
 public class AmenitiesService {
     private final AmenityRepository amenityRepository;
     private final HotelsRepository hotelRepository;
+    private final ReferenceUpserter upserter;
+    private final TransactionTemplate transactions;
 
-    @Transactional
     public void addAmenitiesTo(Long hotelId, List<String> amenities) {
-        var hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> NotFoundException.hotel("There are no hotel id:%d".formatted(hotelId)));
+        transactions.execute(status -> findHotel(hotelId));
 
-        Set<Amenity> resolved = new LinkedHashSet<>();
-        for (String raw : amenities) {
-            if (raw == null || raw.isBlank()) {
-                continue;
+        var amenityIds = amenities.stream()
+                .filter(raw -> raw != null && !raw.isBlank())
+                .map(raw -> upserter.amenityId(raw.trim()))
+                .distinct()
+                .toList();
+
+        transactions.execute(status -> {
+            Hotel hotel = findHotel(hotelId);
+            Set<Amenity> resolved = new LinkedHashSet<>();
+            for (Long id : amenityIds) {
+                resolved.add(amenityRepository.findById(id).orElseThrow());
             }
-            resolved.add(findOrCreate(raw.trim()));
-        }
-
-        hotel.getAmenities().addAll(resolved);
+            hotel.getAmenities().addAll(resolved);
+            return null;
+        });
     }
 
-    private Amenity findOrCreate(String name) {
-        return amenityRepository.findByNameIgnoreCase(name)
-                .orElseGet(() -> amenityRepository.save(Amenity.of(name)));
+    private Hotel findHotel(Long hotelId) {
+        return hotelRepository.findById(hotelId)
+                .orElseThrow(() -> NotFoundException.hotel("There are no hotel id:%d".formatted(hotelId)));
     }
 }

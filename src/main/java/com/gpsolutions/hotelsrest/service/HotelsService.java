@@ -6,10 +6,11 @@ import com.gpsolutions.hotelsrest.dto.HotelResponse;
 import com.gpsolutions.hotelsrest.dto.HotelsSearchFilterRequest;
 import com.gpsolutions.hotelsrest.exceptions.NotFoundException;
 import com.gpsolutions.hotelsrest.mapper.HotelMapper;
-import com.gpsolutions.hotelsrest.model.*;
+import com.gpsolutions.hotelsrest.model.Address;
+import com.gpsolutions.hotelsrest.model.ArrivalTime;
+import com.gpsolutions.hotelsrest.model.Contacts;
+import com.gpsolutions.hotelsrest.model.Hotel;
 import com.gpsolutions.hotelsrest.repository.BrandRepository;
-import com.gpsolutions.hotelsrest.repository.CityRepository;
-import com.gpsolutions.hotelsrest.repository.CountryRepository;
 import com.gpsolutions.hotelsrest.repository.HotelsRepository;
 import com.gpsolutions.hotelsrest.repository.StreetRepository;
 import com.gpsolutions.hotelsrest.specification.HotelSpecifications;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
@@ -27,10 +29,10 @@ import java.util.List;
 public class HotelsService {
     private final HotelsRepository hotelDao;
     private final HotelMapper hotelMapper;
+    private final ReferenceUpserter upserter;
     private final BrandRepository brandRepository;
-    private final CountryRepository countryRepository;
-    private final CityRepository cityRepository;
     private final StreetRepository streetRepository;
+    private final TransactionTemplate transactions;
 
     @Transactional(readOnly = true)
     public List<HotelResponse> searchHotels(HotelsSearchFilterRequest filter) {
@@ -57,53 +59,30 @@ public class HotelsService {
         return hotelMapper.toHotelExtendedResponse(hotel);
     }
 
-    @Transactional
+
     public HotelResponse create(HotelCreateRequest request) {
-        var brand = upsertBrand(request.getBrand());
-
+        var brandId = upserter.brandId(request.getBrand().trim());
         var address = request.getAddress();
-        var street = upsertStreet(address, upsertCity(address.getCity(), upsertCountry(address.getCountry())));
-        var newAddress = Address.of(address.getHouseNumber(), street, address.getPostCode());
+        var countryId = upserter.countryId(address.getCountry().trim());
+        var cityId = upserter.cityId(address.getCity().trim(), countryId);
+        var streetId = upserter.streetId(address.getStreet().trim(), cityId);
 
-        var contacts = request.getContacts();
-        var newContacts = Contacts.of(contacts.getPhone(), contacts.getEmail());
+        return transactions.execute(status -> {
+            var brand = brandRepository.getReferenceById(brandId);
+            var street = streetRepository.getReferenceById(streetId);
+            var newAddress = Address.of(address.getHouseNumber(), street, address.getPostCode());
 
-        var arrival = request.getArrivalTime();
-        var newArrivalTime = (arrival == null) ? null
-                : ArrivalTime.of(arrival.getCheckIn(), arrival.getCheckOut());
+            var contacts = request.getContacts();
+            var newContacts = Contacts.of(contacts.getPhone(), contacts.getEmail());
 
-        var hotel = Hotel.of(
-                request.getName(), request.getDescription(),
-                brand, newAddress, newContacts, newArrivalTime);
-        return hotelMapper.toHotelResponse(hotelDao.save(hotel));
-    }
+            var arrival = request.getArrivalTime();
+            var newArrivalTime = (arrival == null) ? null
+                    : ArrivalTime.of(arrival.getCheckIn(), arrival.getCheckOut());
 
-    private Brand upsertBrand(String name) {
-        return brandRepository.findByNameIgnoreCase(name.trim())
-                .orElseGet(() -> brandRepository.save(Brand.of(name.trim())));
-    }
-
-    private Country upsertCountry(String name) {
-        return countryRepository.findByNameIgnoreCase(name.trim())
-                .orElseGet(() -> countryRepository.save(Country.of(name.trim())));
-    }
-
-    private City upsertCity(String name, Country country) {
-        return cityRepository.findByNameIgnoreCase(name.trim())
-                .orElseGet(() -> cityRepository.save(City.of(name.trim(), country)));
-    }
-
-    private Street upsertStreet(HotelCreateRequest.AddressCreateRequest addressField, City city) {
-        var street = streetRepository.findByNameIgnoreCase(addressField.getStreet().trim())
-                .orElseGet(() -> {
-                    var created = Street.of(addressField.getStreet().trim());
-                    created.getCities().add(city);
-                    return streetRepository.save(created);
-                });
-        if (!street.getCities().contains(city)) {
-            street.getCities().add(city);
-            streetRepository.save(street);
-        }
-        return street;
+            var hotel = Hotel.of(
+                    request.getName(), request.getDescription(),
+                    brand, newAddress, newContacts, newArrivalTime);
+            return hotelMapper.toHotelResponse(hotelDao.save(hotel));
+        });
     }
 }
